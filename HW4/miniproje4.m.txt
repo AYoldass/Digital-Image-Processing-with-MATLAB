@@ -1,0 +1,41 @@
+tic;
+sena=imread("C:/Users/senan/Desktop/me.jpg");
+sena_gray=rgb2gray(sena);
+sena_gray=im2double(sena_gray); 
+
+[r c]=size(sena_gray);
+
+fftsena = fft2(sena_gray,r,c);
+fftshifted = fftshift(fftsena);
+
+[rows, cols] = size(fftshifted);
+crow = round(rows / 2);
+ccol = round(cols / 2);
+half_row = round(rows / 4);
+half_col = round(cols / 4);
+
+fft_compressed = zeros(size(fftshifted));
+fft_compressed(crow-half_row:crow+half_row, ccol-half_col:ccol+half_col) = fftshifted(crow-half_row:crow+half_row, ccol-half_col:ccol+half_col);
+
+compressed_image = real(ifft2(ifftshift(fft_compressed)));
+
+figure;
+subplot(131);
+imshow(sena_gray);
+title('Original grayscale image');
+subplot(132);
+imshow(compressed_image, []);
+title('Compressed image');
+subplot(1,3,3);
+imshow(log(abs(fft_compressed) + 1), []);
+title('FFT coefficients of compressed image');
+
+compressed_fft_size = numel(find(fft_compressed));
+original_fft_size = numel(fftsena);
+compression_ratio = compressed_fft_size / original_fft_size * 100;
+fprintf("original fft size %f \n",original_fft_size);
+fprintf("compressed fft size %f \n",compressed_fft_size);
+fprintf('Sıkıştırılmış resmin FFT boyutu, orijinal FFT boyutunun %% %f kadarıdır.\n', compression_ratio);
+
+time=toc;
+fprintf("time = %f \n",time);
